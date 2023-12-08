@@ -2,13 +2,14 @@
 
 import argparse
 import cProfile
-from math import log2
+import math
 import pstats
 import struct
 import wave
 from array import array
 from itertools import batched
 from wave import _wave_params
+
 from four1 import four1
 
 
@@ -21,32 +22,32 @@ def float_to_short(f: float) -> int:
     return r
 
 
-# fmt: off
-# DFT.
-def convolution(x: list[float], h: list[float]) -> list[float]:
-    y = [0.0] * len(x)
-    for m, n in batched(range(len(x)), 2):
-        y[m] = x[m]*h[m] - x[n]*h[n] 
-        y[n] = x[m]*h[n] + x[n]*h[m]
-    return y
+def log2(x: int) -> int:
+    return int(math.log2(x))
 
 
 # fmt: off
 
 def convolve(xs: list[float], hs: list[float]) -> list[float]:
     M, N = len(xs), len(hs)
-    K = 1 << int(log2(M*2 - 1) + 1)
+    K = 1 << (log2(M*2 - 1) + 1)
     P = M+N - 1
 
     x = [0.0] * K*2
     h = [0.0] * K*2
+    y = [0.0] * K*2
 
     x[0:M*2:2] = xs
     h[0:N*2:2] = hs
 
     x = four1(x, K, 1)
     h = four1(h, K, 1)
-    y = four1(convolution(x, h), K, -1)
+    
+    for m, n in batched(range(K*2), 2):
+        y[m] = x[m]*h[m] - x[n]*h[n] 
+        y[n] = x[m]*h[n] + x[n]*h[m]
+    
+    y = four1(y, K, -1)
     
     return [y[i] / K for i in range(P*2)[::2]]
 
