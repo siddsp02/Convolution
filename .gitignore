@@ -1,0 +1,6 @@
+*.wav
+*.pyc
+/venv/
+.vscode
+*.pyd
+build
