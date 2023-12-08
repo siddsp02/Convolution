@@ -22,15 +22,16 @@ def float_to_short(f: float) -> int:
 
 
 # fmt: off
-
 # DFT.
 def convolution(x: list[float], h: list[float]) -> list[float]:
-    k = len(x)
-    y = [0.0] * k
-    for m, n in batched(range(k), 2):
-        u, v, q, r = x[m], x[n], h[m], h[n]
-        y[m], y[n] = u*q - v*r, u*r + v*q
+    y = [0.0] * len(x)
+    for m, n in batched(range(len(x)), 2):
+        y[m] = x[m]*h[m] - x[n]*h[n] 
+        y[n] = x[m]*h[n] + x[n]*h[m]
     return y
+
+
+# fmt: off
 
 def convolve(xs: list[float], hs: list[float]) -> list[float]:
     M, N = len(xs), len(hs)
@@ -48,6 +49,7 @@ def convolve(xs: list[float], hs: list[float]) -> list[float]:
     y = four1(convolution(x, h), K, -1)
     
     return [y[i] / K for i in range(P*2)[::2]]
+
 # fmt: on
 
 
