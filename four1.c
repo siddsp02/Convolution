@@ -65,7 +65,10 @@ static PyObject *pyfour1(PyObject *self, PyObject *args) {
     
     size = PyList_Size(lst);
     data = malloc(size * sizeof(double));
-    
+
+    /* This should be rewritten since using `PyList_GetItem` and `PyList_Float`
+       return a new reference to a python object. This causes issues with memory
+       leaks and reference counting, and needs to be fixed soon. */ 
     for (i = 0; i < size; ++i)
         data[i] = PyFloat_AsDouble(PyNumber_Float(PyList_GetItem(lst, i)));
     
